@@ -2,6 +2,7 @@
   "name": "async-message-queue",
   "version": "1.0.0",
   "description": "Sequential message delivery with webhook-driven ordering",
+  "license": "MIT",
   "scripts": {
     "demo": "tsx src/demo.ts",
     "build": "tsc"
