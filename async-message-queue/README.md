@@ -24,7 +24,7 @@ This queue service handles all of that by:
 
 1. API access with a valid token
 2. A webhook subscription pointing to your server
-3. Node.js 18+
+3. Node.js 20+
 
 ### Setting Up Webhooks
 
