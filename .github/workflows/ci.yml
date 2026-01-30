@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+        example: [async-message-queue]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.example }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.example }}
+        run: npm ci
+
+      - name: Security audit
+        working-directory: ${{ matrix.example }}
+        run: npm audit --audit-level=high
+
+      - name: Build
+        working-directory: ${{ matrix.example }}
+        run: npm run build
