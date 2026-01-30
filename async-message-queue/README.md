@@ -1,10 +1,10 @@
 # Async Message Queue Example
 
-A reference implementation showing how to integrate with the Linq V3 async API while maintaining sequential message ordering.
+A reference implementation showing how to maintain sequential message ordering with the [Linq](https://linqapp.com) async API.
 
 ## The Problem
 
-When migrating from sync to async APIs, you lose the request-response pattern that lets you:
+With async APIs, you don't have a request-response pattern that lets you:
 - Send messages in guaranteed order (1 → 2 → 3 → 4)
 - Wait for delivery confirmation before sending next
 - Abort remaining messages if user responds
@@ -31,7 +31,7 @@ This queue service handles all of that by:
 Create a webhook subscription via the API:
 
 ```bash
-curl -X POST "https://api.example.com/v3/webhook-subscriptions" \
+curl -X POST "https://api.linqapp.com/v3/webhook-subscriptions" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -49,7 +49,7 @@ For local development, use [ngrok](https://ngrok.com) to expose your webhook ser
 npm install
 
 # Set environment variables
-export LINQ_API_URL=https://api.example.com
+export LINQ_API_URL=https://api.linqapp.com
 export LINQ_API_TOKEN=your-token
 export LINQ_FROM_PHONE=+1234567890
 export LINQ_TO_PHONE=+0987654321

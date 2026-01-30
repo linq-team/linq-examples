@@ -1,7 +1,7 @@
 // =============================================================================
 // Demo: Async Message Queue with Guaranteed Ordering
 //
-// Shows how to migrate from sync API to async while maintaining:
+// Shows how to maintain guaranteed ordering with async APIs:
 // - Sequential message delivery (1 → 2 → 3 → 4)
 // - Typing indicators between messages
 // - Abort capability on inbound user message

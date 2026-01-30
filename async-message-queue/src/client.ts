@@ -1,5 +1,5 @@
 // =============================================================================
-// Linq V3 API Client
+// Linq API Client
 // =============================================================================
 
 import {
@@ -73,7 +73,6 @@ export class LinqClient {
     chatId: string,
     parts: MessagePart[]
   ): Promise<MessageResponse> {
-    // V3 API: POST /v3/chats/{chatId}/messages
     return this.request<MessageResponse>(
       'POST',
       `/v3/chats/${chatId}/messages`,

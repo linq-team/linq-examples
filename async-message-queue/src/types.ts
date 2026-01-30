@@ -1,5 +1,5 @@
 // =============================================================================
-// Linq V3 API Types
+// Linq API Types
 // =============================================================================
 
 export interface MessagePart {
@@ -20,7 +20,7 @@ export interface CreateChatRequest {
   service?: string;
 }
 
-// V3 API Response - actual format
+// API Response
 export interface ChatResponse {
   chat: {
     id: string;
@@ -65,7 +65,7 @@ export type WebhookEventType =
   | 'message.failed'
   | 'message.received';
 
-// V3 Webhook payload - event type is in X-Webhook-Event header
+// Webhook payload - event type is in X-Webhook-Event header
 export interface WebhookPayload {
   chat_id: string;
   message_id?: string;
