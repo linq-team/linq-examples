@@ -15,7 +15,7 @@ When migrating from sync to async APIs, you lose the request-response pattern th
 This queue service handles all of that by:
 1. Accepting a batch of messages to send in sequence
 2. Sending them one at a time via the API
-3. Waiting for `message.delivered` webhooks before advancing
+3. Waiting for delivery webhooks before advancing (`message.delivered` for iMessage, `message.sent` for SMS)
 4. Showing typing indicators between messages
 5. Aborting remaining queue on `message.received` (inbound)
 6. Retrying failed messages before giving up
@@ -67,7 +67,7 @@ Your app generates [msg1, msg2, msg3, msg4]
                     ↓
            Send msg1 → API
                     ↓
-           Wait for webhook (message.delivered)
+           Wait for webhook (message.delivered for iMessage, message.sent for SMS)
                     ↓
            Send typing indicator
                     ↓
@@ -139,12 +139,16 @@ await queue.enqueue(groupId, messages, {
 
 ## Webhook Events
 
+See the [Webhook Events API documentation](https://apidocs.linqapp.com/documentation/webhook-events) for full details.
+
 | Event | Action |
 |-------|--------|
-| `message.delivered` | Advance to next message |
-| `message.sent` | Wait for delivery |
+| `message.delivered` | Advance to next message (iMessage only) |
+| `message.sent` | Advance to next message (SMS only) |
 | `message.failed` | Retry or abort group |
 | `message.received` | Abort group (user responded) |
+
+**Note:** SMS doesn't receive delivery confirmations, so the queue advances on `message.sent` for SMS conversations. iMessage waits for `message.delivered` to confirm the recipient received the message.
 
 ## Environment Variables
 

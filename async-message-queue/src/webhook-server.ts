@@ -19,7 +19,8 @@ export function createWebhookServer(config: WebhookServerConfig): express.Applic
     res.json({ status: 'ok' });
   });
 
-  app.post('/webhooks/linq', async (req: Request, res: Response) => {
+  app.post('/webhooks', async (req: Request, res: Response) => {
+    console.log('  [webhook] Received:', req.header('X-Webhook-Event'), JSON.stringify(req.body).slice(0, 200));
     try {
       const eventType = req.header('X-Webhook-Event') as WebhookEventType | undefined;
       const timestamp = req.header('X-Webhook-Timestamp') || new Date().toISOString();
@@ -54,6 +55,7 @@ export function startWebhookServer(
   return new Promise((resolve) => {
     const app = createWebhookServer(config);
     const server = app.listen(config.port, () => {
+      console.log(`  [webhook] Server listening on port ${config.port}`);
       resolve(server);
     });
   });

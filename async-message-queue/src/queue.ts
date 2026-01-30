@@ -112,6 +112,7 @@ export class MessageQueueService extends EventEmitter {
           { parts: message.parts }
         );
         group.chatId = response.chat.id;
+        group.service = response.chat.service;
         message.chatId = response.chat.id;
         message.externalMessageId = response.chat.message?.id;
       } else {
@@ -178,8 +179,24 @@ export class MessageQueueService extends EventEmitter {
     const group = this.groups.get(message.groupId);
     if (!group || group.aborted) return;
 
-    if (event.type === 'message.delivered') {
-      this.emit('message:delivered', message);
+    // Already processed this message (e.g., SMS got both sent and delivered webhooks)
+    if (message.order < group.currentOrder) {
+      if (event.type === 'message.delivered') {
+        this.emit('message:delivered', message);
+      }
+      return;
+    }
+
+    // SMS doesn't reliably get delivery confirmations, so advance on message.sent
+    // iMessage should wait for message.delivered
+    const shouldAdvance =
+      event.type === 'message.delivered' ||
+      (group.service === 'SMS' && event.type === 'message.sent');
+
+    if (shouldAdvance) {
+      if (event.type === 'message.delivered') {
+        this.emit('message:delivered', message);
+      }
       group.currentOrder++;
       await this.processNext(message.groupId);
     }

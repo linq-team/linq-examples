@@ -71,7 +71,15 @@ async function runDemo() {
   });
 
   // Start webhook server
-  await startWebhookServer({ port: config.webhookPort, queue });
+  const server = await startWebhookServer({ port: config.webhookPort, queue });
+
+  // Graceful shutdown
+  const shutdown = () => {
+    server.close();
+    process.exit(0);
+  };
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 
   // Define messages to send
   const messages: MessagePart[][] = [
@@ -99,7 +107,11 @@ async function runDemo() {
   console.log('  Demo Complete');
   console.log('='.repeat(50) + '\n');
 
+  server.close();
   process.exit(0);
 }
 
-runDemo().catch(console.error);
+runDemo().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

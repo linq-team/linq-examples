@@ -116,6 +116,7 @@ export interface QueuedMessage {
 export interface MessageGroup {
   id: string;
   chatId?: string;
+  service?: string;           // 'iMessage' | 'SMS' - set after chat creation
   to: string[];
   from: string;
   currentOrder: number;
