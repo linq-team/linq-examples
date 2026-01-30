@@ -4,7 +4,7 @@
 
 **Code examples and reference implementations for integrating with [Linq](https://linqapp.com) APIs.**
 
-[Website](https://linqapp.com) · [API Docs](https://apidocs.linqapp.com) · [Get Started](https://linqapp.com)
+[Website](https://linqapp.com) · [API Docs](https://apidocs.linqapp.com) · [Get Started](https://dashboard.linqapp.com/sandbox-signup/)
 
 </div>
 
