@@ -7,6 +7,11 @@
 // - Abort on inbound message
 // - Retry on failure
 // - Typing indicators between messages
+//
+// Note: This is a reference implementation. For production use, consider:
+// - Persisting queue state to a database
+// - Cleaning up completed/aborted groups from memory
+// - Adding observability (metrics, structured logging)
 // =============================================================================
 
 import { EventEmitter } from 'events';
@@ -143,6 +148,7 @@ export class MessageQueueService extends EventEmitter {
     message.retries++;
 
     if (message.retries < message.maxRetries) {
+      // Linear backoff: 1s, 2s, 3s...
       await this.delay(1000 * message.retries);
       await this.sendMessage(message, group);
     } else {
@@ -214,6 +220,7 @@ export class MessageQueueService extends EventEmitter {
 
     message.retries++;
     if (message.retries < message.maxRetries) {
+      // Linear backoff: 1s, 2s, 3s...
       await this.delay(1000 * message.retries);
       await this.sendMessage(message, group);
     } else {

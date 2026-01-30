@@ -4,7 +4,6 @@
 
 import {
   CreateChatRequest,
-  SendMessageRequest,
   ChatResponse,
   MessageResponse,
   MessagePart,
@@ -40,7 +39,7 @@ export class LinqClient {
       body: body ? JSON.stringify(body) : undefined,
     });
 
-    const data = await response.json();
+    const data = await response.json() as T & { error?: { message?: string } };
 
     if (!response.ok) {
       throw new Error(
@@ -48,7 +47,7 @@ export class LinqClient {
       );
     }
 
-    return data as T;
+    return data;
   }
 
   /**
@@ -84,6 +83,7 @@ export class LinqClient {
 
   /**
    * Send typing indicator for a chat
+   * Note: Uses direct fetch since this endpoint may return 204 No Content
    */
   async sendTypingIndicator(chatId: string): Promise<void> {
     const url = `${this.baseUrl}/v3/chats/${chatId}/typing`;

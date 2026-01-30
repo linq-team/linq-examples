@@ -20,11 +20,6 @@ export interface CreateChatRequest {
   service?: string;
 }
 
-export interface SendMessageRequest {
-  chat_id: string;
-  message: MessagePayload;
-}
-
 // V3 API Response - actual format
 export interface ChatResponse {
   chat: {
