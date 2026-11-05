@@ -40,6 +40,10 @@ Import `examples/inbound-ai-reply.json` after installing the node. Choose your L
 
 Publish from GitHub Actions with npm provenance, then submit the exact package through https://creators.n8n.io/nodes. A maintainer must configure npm trusted publishing and confirm ownership of the `@linqapp` scope. See `.github/workflows/publish-n8n.yml` at repository root. Configure the `npm-n8n-release` environment with required reviewers before using the manual publishing workflow. This PR does not publish the package or submit a listing.
 
+## AI Agent tool usage
+
+The Linq action node can also be connected as an AI Agent tool. In that mode, configure recipients and chat IDs as fixed values or expressions from a verified trigger. Do not use model-generated values for routing unless the workflow intentionally authorizes the agent to choose recipients. The included reply workflow keeps routing outside the model.
+
 ## Implementation notes
 
 The action node uses programmatic execution to normalize multi-recipient input, construct distinct send/reply payloads, bind per-item errors and outputs, and keep provider request details out of workflow errors. The trigger performs dependent subscription lifecycle calls and raw-byte cryptographic verification, which require programmatic handling.
