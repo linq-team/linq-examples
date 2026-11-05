@@ -62,6 +62,7 @@ async function trigger(req) {
 	};
 	const context = {
 		getNode: () => ({ name: 'trigger' }),
+		getMode: () => 'webhook',
 		getRequestObject: () => req,
 		getResponseObject: () => response,
 		getCredentials: async () => ({ apiKey: 'test-key' }),
@@ -70,6 +71,7 @@ async function trigger(req) {
 			subscriptions: {
 				'https://n8n.example.com/webhook/linq': {
 					id: 'sub-1',
+					targetUrl: 'https://n8n.example.com/webhook/linq',
 					sealed: sealSecret(secret, 'test-key', 'sub-1'),
 				},
 			},
@@ -191,6 +193,7 @@ test('webhook lifecycle creates, checks and deletes only its own subscription', 
 	const calls = [];
 	const context = {
 		getNode: () => ({ name: 'trigger' }),
+		getMode: () => 'webhook',
 		getNodeWebhookUrl: () => 'https://n8n.example.com/webhook/linq',
 		getWorkflowStaticData: () => data,
 		getCredentials: async () => ({ apiKey: 'test-key' }),
@@ -228,6 +231,7 @@ test('test and production webhook secrets do not overwrite each other', async ()
 	let index = 0;
 	const context = {
 		getNode: () => ({ name: 'trigger' }),
+		getMode: () => (target.includes('webhook-test') ? 'manual' : 'webhook'),
 		getNodeWebhookUrl: () => target,
 		getWorkflowStaticData: () => data,
 		getCredentials: async () => ({ apiKey: 'test-key' }),
@@ -240,4 +244,72 @@ test('test and production webhook secrets do not overwrite each other', async ()
 	target = 'https://n8n.example.com/webhook-test/linq';
 	await methods.create.call(context);
 	assert.equal(Object.keys(data.subscriptions).length, 2);
+});
+
+test('test deliveries use their test secret even when n8n reports production URL', async () => {
+	const req = signed();
+	let status = 200;
+	const context = {
+		getNode: () => ({ name: 'trigger' }),
+		getMode: () => 'manual',
+		getNodeWebhookUrl: () => 'https://n8n.example.com/webhook/linq',
+		getCredentials: async () => ({ apiKey: 'test-key' }),
+		getWorkflowStaticData: () => ({
+			subscriptions: {
+				'https://n8n.example.com/webhook-test/linq': {
+					id: 'test-sub',
+					isTest: true,
+					targetUrl: 'https://n8n.example.com/webhook-test/linq',
+					sealed: sealSecret(secret, 'test-key', 'test-sub'),
+				},
+			},
+		}),
+		getRequestObject: () => req,
+		getResponseObject: () => ({
+			status(s) {
+				status = s;
+				return this;
+			},
+			json() {
+				return this;
+			},
+		}),
+		helpers: { returnJsonArray: (json) => [{ json }] },
+	};
+	const result = await new LinqTrigger().webhook.call(context);
+	assert.equal(status, 200);
+	assert.equal(result.workflowData[0][0].json.text, 'hello');
+});
+
+test('test cleanup in internal mode cannot delete the production subscription', async () => {
+	const data = {};
+	let target = 'https://n8n.example.com/webhook/linq';
+	let mode = 'webhook';
+	let i = 0;
+	const deleted = [];
+	const context = {
+		getNode: () => ({ name: 'trigger' }),
+		getMode: () => mode,
+		getNodeWebhookUrl: () => target,
+		getWorkflowStaticData: () => data,
+		getCredentials: async () => ({ apiKey: 'test-key' }),
+		helpers: {
+			httpRequestWithAuthentication: async function (_, options) {
+				if (options.method === 'DELETE') {
+					deleted.push(options.url);
+					return {};
+				}
+				return { id: 'sub-' + ++i, signing_secret: secret };
+			},
+		},
+	};
+	const methods = new LinqTrigger().webhookMethods.default;
+	await methods.create.call(context);
+	target = 'https://n8n.example.com/webhook-test/linq';
+	mode = 'manual';
+	await methods.create.call(context);
+	mode = 'internal';
+	await methods.delete.call(context);
+	assert.deepEqual(deleted, ['https://api.linqapp.com/api/partner/v3/webhook-subscriptions/sub-2']);
+	assert.equal(data.subscriptions['https://n8n.example.com/webhook/linq'].id, 'sub-1');
 });

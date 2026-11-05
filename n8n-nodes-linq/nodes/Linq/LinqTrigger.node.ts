@@ -8,7 +8,7 @@ import type {
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 import { openSecret, sealSecret, verifyWebhook } from './webhook';
-type Subscription = { id: string; sealed: string };
+type Subscription = { id: string; sealed: string; targetUrl: string; isTest: boolean };
 function state(context: IHookFunctions | IWebhookFunctions): Record<string, Subscription> {
 	const data = context.getWorkflowStaticData('node');
 	if (!data.subscriptions) data.subscriptions = {};
@@ -143,6 +143,8 @@ export class LinqTrigger implements INodeType {
 					);
 				state(this)[target] = {
 					id: subscription.id,
+					targetUrl: target,
+					isTest: this.getMode() === 'manual',
 					sealed: sealSecret(
 						subscription.signing_secret,
 						credentials.apiKey as string,
@@ -180,7 +182,13 @@ export class LinqTrigger implements INodeType {
 		const res = this.getResponseObject();
 		try {
 			const credentials = await this.getCredentials('linqApi');
-			const saved = state(this)[url(this)];
+			const candidates = Object.values(state(this)).filter((value) => value.isTest);
+			const saved =
+				this.getMode() === 'manual'
+					? candidates.length === 1
+						? candidates[0]
+						: undefined
+					: state(this)[url(this)];
 			if (!saved)
 				throw new NodeOperationError(this.getNode(), 'No Linq subscription for this webhook URL');
 			const secret = openSecret(saved.sealed, credentials.apiKey as string, saved.id);
