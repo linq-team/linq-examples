@@ -1,0 +1,26 @@
+name: Publish Linq n8n package
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    environment: npm-n8n-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: n8n-nodes-linq
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: https://registry.npmjs.org
+      - run: npm install --global npm@11
+      - run: npm ci --ignore-scripts
+      - run: npm run lint && npm run typecheck && npm test
+      - run: npm publish --provenance --access public --ignore-scripts

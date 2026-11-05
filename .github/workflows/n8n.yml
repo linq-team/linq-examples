@@ -1,0 +1,27 @@
+name: Linq n8n integration
+on:
+  pull_request:
+    paths: ['n8n-nodes-linq/**', '.github/workflows/n8n.yml']
+  push:
+    branches: [main]
+    paths: ['n8n-nodes-linq/**']
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: n8n-nodes-linq
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: n8n-nodes-linq/package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm pack --ignore-scripts
