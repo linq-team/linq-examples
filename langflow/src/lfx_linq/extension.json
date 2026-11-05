@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schemas.langflow.org/extension/v1.json",
+  "id": "lfx-linq",
+  "version": "0.1.0",
+  "name": "Linq",
+  "description": "Send iMessage, RCS, and SMS from Langflow.",
+  "lfx": {
+    "compat": [
+      "1"
+    ]
+  },
+  "bundles": [
+    {
+      "name": "linq",
+      "path": "components/linq"
+    }
+  ]
+}

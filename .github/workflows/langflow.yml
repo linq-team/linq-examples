@@ -1,0 +1,26 @@
+name: Linq Langflow extension
+on:
+  pull_request:
+    paths: ['langflow/**', '.github/workflows/langflow.yml']
+  push:
+    branches: [main]
+    paths: ['langflow/**']
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: langflow
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.13.7'
+          python-version: '3.12'
+      - run: uv sync --frozen --extra example
+      - run: uv run ruff check src tests examples
+      - run: uv run pytest
+      - run: uv run lfx extension validate src/lfx_linq --execute-imports
+      - run: uv build

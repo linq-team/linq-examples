@@ -14,6 +14,7 @@
 
 | Example | Description |
 |---------|-------------|
+| [langflow](./langflow) | Installable Linq components and signed inbound AI reply example for Langflow |
 | [async-message-queue](./async-message-queue) | Sequential message delivery with webhook-driven ordering |
 
 ## Getting Started
