@@ -62,3 +62,7 @@ CI checks the bundle against the real installed LFX runtime, tests API request s
 ## Submission after review
 
 Publish `lfx-linq` to PyPI from a reviewed release after confirming package ownership, then propose the Linq bundle to Langflow using its [extension guide](https://docs.langflow.org/extensions-quickstart) and [contribution guide](https://docs.langflow.org/contributing-bundles). Include the package, manifest, passing validation, component docs, and gateway example. Publication and a public catalogue listing are separate: installation works independently of Langflow accepting the contribution. Nothing in this PR is published automatically.
+
+### Publisher configuration
+
+Configure a PyPI pending trusted publisher for project `lfx-linq`, owner `linq-team`, repository `linq-examples`, workflow `publish-langflow.yml`, and environment `pypi-linq-release`. Then dispatch that workflow on main with the exact version in `pyproject.toml`. Only the reviewed distributions built by that run are uploaded. A pending publisher does not reserve the project name until the first successful upload.
