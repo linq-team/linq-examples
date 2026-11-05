@@ -254,3 +254,20 @@ async def test_same_chat_processing_is_serial(gateway, monkeypatch, tmp_path):
         gateway.handle_event("a", "same", "event-a"), gateway.handle_event("b", "same", "event-b")
     )
     assert maximum == 1
+
+
+def test_python310_timeout_is_sanitized(gateway, monkeypatch):
+    class LegacyTimeout(Exception):
+        pass
+
+    async def timeout(coro, timeout):
+        coro.close()
+        raise LegacyTimeout()
+
+    monkeypatch.setattr(gateway.asyncio, "TimeoutError", LegacyTimeout)
+    monkeypatch.setattr(gateway.asyncio, "wait_for", timeout)
+    payload, headers = signed()
+    with TestClient(gateway.app) as client:
+        response = client.post("/webhooks/linq", content=payload, headers=headers)
+    assert response.status_code == 503
+    assert response.json() == {"detail": "Processing failed; delivery can be retried"}

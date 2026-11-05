@@ -161,6 +161,14 @@ async def webhook(request: Request):
     try:
         # A wall-clock deadline covers lock wait, flow execution and sending.
         return await asyncio.wait_for(handle_event(text, chat["id"], event_id), timeout=90)
-    except (APIError, httpx.HTTPError, ValueError, KeyError, TypeError, RuntimeError, TimeoutError):
+    except (
+        APIError,
+        httpx.HTTPError,
+        ValueError,
+        KeyError,
+        TypeError,
+        RuntimeError,
+        asyncio.TimeoutError,
+    ):
         # No provider exception text, keys, prompts, or message contents in responses/logs.
         raise HTTPException(503, "Processing failed; delivery can be retried") from None
