@@ -271,3 +271,10 @@ def test_python310_timeout_is_sanitized(gateway, monkeypatch):
         response = client.post("/webhooks/linq", content=payload, headers=headers)
     assert response.status_code == 503
     assert response.json() == {"detail": "Processing failed; delivery can be retried"}
+
+
+def test_extension_and_distribution_versions_match():
+    from importlib.metadata import version
+
+    manifest = json.loads((Path(__file__).parents[1] / "src/lfx_linq/extension.json").read_text())
+    assert manifest["version"] == version("lfx-linq")

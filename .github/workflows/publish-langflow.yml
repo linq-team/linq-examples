@@ -24,7 +24,7 @@ jobs:
       - name: Verify version
         env:
           RELEASE_VERSION: ${{ inputs.version }}
-        run: uv run --locked python -c "import os,tomllib; assert tomllib.load(open('pyproject.toml','rb'))['project']['version'] == os.environ['RELEASE_VERSION']"
+        run: uv run --locked python -c "import os,tomllib; import json; package = tomllib.load(open('pyproject.toml','rb'))['project']['version']; assert package == os.environ['RELEASE_VERSION']; assert json.load(open('src/lfx_linq/extension.json'))['version'] == package"
       - run: uv sync --locked --extra example
       - run: uv run --locked ruff check src tests examples
       - run: uv run --locked pytest
