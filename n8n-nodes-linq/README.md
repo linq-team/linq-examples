@@ -2,7 +2,11 @@
 
 Send and receive iMessage, RCS, and SMS using Linq. Includes **Send Message**, **Reply in Chat**, **Get Chat**, **List Phone Numbers**, and a signature-verifying **Linq Trigger**. Credentials stay in n8n's encrypted credential store; the node has no runtime package dependencies.
 
-## Build and install locally
+## Install
+
+On a self-hosted n8n instance, open **Settings → Community nodes → Install**, enter `@linqapp/n8n-nodes-linq`, and install the package. n8n Cloud availability requires n8n's separate verification approval.
+
+## Local development
 
 Requires Node.js 22 and npm. From this directory:
 
@@ -14,7 +18,7 @@ npm run typecheck
 npm pack --ignore-scripts
 ```
 
-Until npm publication, install the built package into a self-hosted n8n's custom-node directory. Run `npm run dev` for the official n8n development environment. After publication, self-hosted users can install `@linqapp/n8n-nodes-linq` under Settings → Community nodes. n8n Cloud availability requires n8n's separate verification approval.
+Run `npm run dev` for the official n8n development environment, or install the built package into a self-hosted n8n's custom-node directory.
 
 ## Sending
 
@@ -36,9 +40,9 @@ The trigger verifies the original request bytes, HMAC signature, and a five-minu
 
 Import `examples/inbound-ai-reply.json` after installing the node. Choose your Linq API credential on both Linq nodes and your OpenAI credential. Review the model selection and prompt, then activate it yourself. It is disabled by default. The workflow only responds to direct text messages, uses the verified trigger's chat ID, and derives the reply idempotency key from its event ID. The model only produces text; it does not choose the recipient. Review n8n execution-data retention because inbound and outbound content can be retained there.
 
-## Public submission after review
+## Releases and directory submission
 
-Publish from GitHub Actions with npm provenance, then submit the exact package through https://creators.n8n.io/nodes. A maintainer must configure npm trusted publishing and confirm ownership of the `@linqapp` scope. See `.github/workflows/publish-n8n.yml` at repository root. Configure the `npm-n8n-release` environment with required reviewers before using the manual publishing workflow. This PR does not publish the package or submit a listing.
+Publish reviewed releases from `.github/workflows/publish-n8n.yml` on `main` with the exact package version and `bootstrap_with_token` disabled. The workflow uses npm trusted publishing and provenance through the protected `npm-n8n-release` environment. Submit the published package for n8n verification through https://creators.n8n.io/nodes. npm publication does not by itself make the node available on n8n Cloud.
 
 ## AI Agent tool usage
 
