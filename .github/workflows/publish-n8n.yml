@@ -1,0 +1,48 @@
+name: Publish Linq n8n package
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact package version to publish
+        required: true
+        type: string
+      bootstrap_with_token:
+        description: First publication only; use the environment-scoped NPM_TOKEN
+        default: false
+        type: boolean
+permissions:
+  contents: read
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    environment: npm-n8n-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: n8n-nodes-linq
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          registry-url: https://registry.npmjs.org
+      - name: Verify version
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: node -e "if (require('./package.json').version !== process.env.RELEASE_VERSION) process.exit(1)"
+      - run: npm install --global npm@11
+      - run: npm ci --ignore-scripts
+      - run: npm run lint && npm run typecheck && npm test
+      - name: Publish with provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ inputs.bootstrap_with_token && secrets.NPM_TOKEN || '' }}
+          BOOTSTRAP: ${{ inputs.bootstrap_with_token }}
+        run: |
+          if [ "$BOOTSTRAP" = true ] && [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo 'Configure an environment-scoped NPM_TOKEN for the first publication.' >&2
+            exit 1
+          fi
+          npm publish --provenance --access public --ignore-scripts
