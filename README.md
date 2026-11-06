@@ -14,6 +14,7 @@
 
 | Example | Description |
 |---------|-------------|
+| [n8n-nodes-linq](./n8n-nodes-linq) | Native n8n messaging actions, verified inbound trigger, and AI reply workflow |
 | [async-message-queue](./async-message-queue) | Sequential message delivery with webhook-driven ordering |
 
 ## Getting Started
